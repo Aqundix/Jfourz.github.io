@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J4Z | Bio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400&family=Anuphan:wght@200;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-main: #ffffff;
+            --text-dim: #737373;
+            --accent: #ffffff;
+            --border-soft: rgba(255, 255, 255, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', 'Anuphan', sans-serif;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Cinematic Intro (DEKCOM) --- */
+        #intro-screen {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.5s;
+        }
+
+        .intro-text {
+            font-weight: 200;
+            font-size: 1.1rem;
+            letter-spacing: 1rem;
+            text-indent: 1rem;
+            animation: focusInOut 3s forwards;
+        }
+
+        @keyframes focusInOut {
+            0% { opacity: 0; filter: blur(10px); letter-spacing: 2rem; }
+            40% { opacity: 1; filter: blur(0); letter-spacing: 1rem; }
+            80% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0; filter: blur(5px); }
+        }
+
+        /* --- Main UI Content --- */
+        #main-content {
+            opacity: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 2.5s ease;
+        }
+
+        .container { 
+            width: 100%; 
+            max-width: 340px; 
+            text-align: center; 
+            padding: 20px; 
+        }
+
+        .top-header {
+            font-size: 0.55rem;
+            letter-spacing: 0.5rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 45px;
+            font-weight: 200;
+            opacity: 0.7;
+        }
+
+        .profile-wrap { margin-bottom: 50px; }
+
+        .profile-img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            margin: 0 auto 24px;
+            border: 1px solid var(--border-soft);
+            padding: 4px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .profile-img img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            filter: grayscale(20%);
+            transition: filter 0.5s ease;
+        }
+
+        .profile-img:hover img {
+            filter: grayscale(0%);
+        }
+
+        .name {
+            font-weight: 400;
+            font-size: 0.8rem;
+            letter-spacing: 0.4rem;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            letter-spacing: 0.15rem;
+            font-weight: 200;
+        }
+
+        /* --- Links --- */
+        .links-wrapper { display: flex; flex-direction: column; gap: 14px; }
+
+        .link-card {
+            font-size: 0.7rem;
+            letter-spacing: 0.2rem;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--text-dim);
+            padding: 20px;
+            border: 1px solid var(--border-soft);
+            border-radius: 4px;
+            transition: all 0.5s ease;
+            position: relative;
+            background: transparent;
+        }
+
+        .link-card:hover {
+            color: #fff !important;
+            border-color: #fff !important;
+            letter-spacing: 0.3rem;
+            background: rgba(255,255,255,0.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* จัดการสถานะการโหลด */
+        body.loaded #intro-screen { opacity: 0; visibility: hidden; }
+        body.loaded #main-content { opacity: 1; }
+        body.loaded { overflow: auto; }
+    </style>
+</head>
+<body>
+
+    <div id="intro-screen">
+        <div class="intro-text">DEKCOM</div>
+    </div>
+
+    <div id="main-content">
+        <div class="container">
+            <p class="top-header">TECHNICCOM</p>
+
+            <div class="profile-wrap">
+                <div class="profile-img">
+                    <img src="User.jpg" alt="Profile Photo">
+                </div>
+                <h1 class="name">J4Z</h1>
+                <p class="description">INSTAGRAM</p>
+            </div>
+
+            <div class="links-wrapper">
+                <a href="https://x.com/EXTRA_XR9" class="link-card" target="_blank">Twitter</a>
+                <a href="https://www.twitch.tv/J4zqz" class="link-card" target="_blank">Twitch</a>
+                
+                <a href="javascript:void(0)" 
+                   class="link-card" 
+                   id="discord-btn"
+                   onclick="copyDiscordName('ใส่_ID_Discord_ที่นี่')">
+                   Discord
+                </a>
+
+                <a href="https://steamcommunity.com/profiles/76561199395881371/" class="link-card" target="_blank">Steam</a>
+                <a href="https://www.facebook.com/share/1AbgrSB463/" class="link-card" target="_blank">Facebook</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // เริ่มทำงานเมื่อหน้าเว็บโหลดเสร็จ
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 3500); // ระยะเวลาแสดงฉาก DEKCOM
+        });
+
+        // ฟังก์ชันคัดลอกชื่อ Discord
+        function copyDiscordName(username) {
+            if (!username) {
+                alert("กรุณาใส่ ID Discord ในโค้ดก่อนครับ");
+                return;
+            }
+            navigator.clipboard.writeText(username).then(() => {
+                const btn = document.getElementById('discord-btn');
+                const originalText = btn.innerText;
+            
+                btn.innerText = 'Copied to Clipboard!';
+                btn.style.color = '#fff';
+                btn.style.borderColor = '#fff';
+            
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.color = '';
+                    btn.style.borderColor = '';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
