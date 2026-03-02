@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J4Z | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Kanit:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #000000;
+            --secondary-color: #666666;
+            --bg-color: #ffffff;
+            --input-bg: #f5f5f7;
+            --border-radius: 12px;
+            --error-color: #ff3b30;
+            --success-color: #34c759;
+        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 20px); opacity: 1; } }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Kanit', sans-serif; }
+        body { background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; min-height: 100vh; color: var(--primary-color); overflow: hidden; }
+        .auth-card { width: 100%; max-width: 380px; padding: 40px 24px; text-align: center; animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        #toast { position: fixed; top: 0; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 50px; font-size: 14px; font-weight: 500; color: white; z-index: 1000; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.1); animation: slideInDown 0.4s ease forwards; }
+        .toast-error { background-color: var(--error-color); }
+        .toast-success { background-color: var(--success-color); }
+        .header { margin-bottom: 32px; }
+        .header h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .header p { color: var(--secondary-color); font-size: 14px; }
+        .form-group { text-align: left; margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 600; margin-bottom: 6px; color: var(--secondary-color); text-transform: uppercase; }
+        input { width: 100%; padding: 14px 16px; border: 1px solid transparent; background-color: var(--input-bg); border-radius: var(--border-radius); font-size: 15px; transition: all 0.3s ease; }
+        input:focus { outline: none; background-color: #fff; border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(0,0,0,0.05); }
+        .main-btn { width: 100%; padding: 14px; background-color: var(--primary-color); color: white; border: none; border-radius: var(--border-radius); font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 10px; transition: transform 0.2s; }
+        .main-btn:active { transform: scale(0.98); }
+        .divider { margin: 24px 0; display: flex; align-items: center; color: #ddd; font-size: 11px; font-weight: 600; }
+        .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #eee; }
+        .divider span { padding: 0 10px; }
+        .social-btn { width: 100%; padding: 12px; border: 1px solid #eee; background: white; border-radius: var(--border-radius); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; transition: all 0.2s; }
+        .footer { margin-top: 24px; font-size: 14px; color: var(--secondary-color); }
+        .footer a { color: var(--primary-color); text-decoration: none; font-weight: 600; cursor: pointer; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div id="toast"></div>
+    <div class="auth-card">
+        <div class="header">
+            <h1 id="title">Welcome Back</h1>
+            <p id="desc">กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ</p>
+        </div>
+        <form id="auth-form">
+            <div class="form-group"><label>Email Address</label><input type="email" id="email" placeholder="example@mail.com" required></div>
+            <div class="form-group"><label>Password</label><input type="password" id="password" placeholder="••••••••" required minlength="6"></div>
+            <div class="form-group hidden" id="confirm-group"><label>Confirm Password</label><input type="password" id="confirm-password" placeholder="ยืนยันรหัสผ่าน"></div>
+            <button type="submit" class="main-btn" id="submit-btn">Sign In</button>
+        </form>
+        <div class="divider"><span>OR CONTINUE WITH</span></div>
+        <button class="social-btn" id="google-btn">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="G"> Google Account
+        </button>
+        <div class="footer"><span id="toggle-text">Don't have an account?</span> <a id="toggle-link">Create one</a></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDY_KYQpluR0IIc46DggskCRWZQxHMlh6g",
+            authDomain: "bioinstrgarm.firebaseapp.com",
+            projectId: "bioinstrgarm",
+            storageBucket: "bioinstrgarm.firebasestorage.app",
+            messagingSenderId: "142040147943",
+            appId: "1:142040147943:web:f8c9d0fc6bc4d7cc00bf42"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        onAuthStateChanged(auth, (user) => { if (user) window.location.href = "Dashboard.html"; });
+
+        const toast = document.getElementById('toast');
+        function showToast(text, type) {
+            toast.innerText = text; toast.className = type === 'success' ? 'toast-success' : 'toast-error';
+            toast.style.display = 'block'; setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        const authForm = document.getElementById('auth-form');
+        const confirmGroup = document.getElementById('confirm-group');
+        const submitBtn = document.getElementById('submit-btn');
+        const toggleLink = document.getElementById('toggle-link');
+        let isLoginMode = true;
+
+        toggleLink.addEventListener('click', () => {
+            isLoginMode = !isLoginMode;
+            document.getElementById('title').innerText = isLoginMode ? 'Welcome Back' : 'Create Account';
+            submitBtn.innerText = isLoginMode ? 'Sign In' : 'Sign Up';
+            confirmGroup.classList.toggle('hidden', isLoginMode);
+        });
+
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            submitBtn.disabled = true;
+            try {
+                if (isLoginMode) await signInWithEmailAndPassword(auth, email, password);
+                else await createUserWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                showToast(error.message, "error");
+                submitBtn.disabled = false;
+            }
+        });
+
+        document.getElementById('google-btn').addEventListener('click', async () => {
+            try { await signInWithPopup(auth, googleProvider); } 
+            catch (error) { showToast(error.message, "error"); }
+        });
+    </script>
+</body>
+</html>
